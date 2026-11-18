@@ -13,8 +13,6 @@ use Models\UserModel;
  */
 final class AuthController
 {
-    // Etapa 5: leed los flash 'error' e 'info' con Session::getFlash()
-    // y pasadlos a la vista (la vista no accede a Session).
     public function showLogin(): void
     {
         (new Pages())->render('auth/login', ['error' => null, 'info' => null]);
@@ -22,32 +20,24 @@ final class AuthController
 
     public function login(): void
     {
-        // TODO (Etapa 2): leer 'email' y 'password' de $_POST
-        // TODO: buscar el usuario con (new UserModel())->findByEmail()
-        // TODO: comprobar la contraseña con password_verify()
-        // TODO: si es correcta -> Session::set('user_id', ...) y redirect('perfil')
-        //       (Etapa 4: llamad antes a Session::regenerar())
-        // TODO: si falla -> redirect('login')
-        //       (mismo comportamiento si el correo no existe que si la contraseña es incorrecta)
-
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
 
         $user = (new UserModel())->findByEmail($email);
 
-        if ($user && password_verify($password, $user['password'])) {
+        // ¡Ojo aquí! Usamos '$user['hash']' porque esa es la clave correcta que viene del modelo
+        if ($user && password_verify($password, $user['hash'])) {
+            Session::regenerar(); 
             Session::set('user_id', $user['id']);
             redirect('perfil');
-
         }
         
+        // Si falla, redirige al login
         redirect('login');
-
     }
 
     public function logout(): void
     {
-        // TODO (Etapa 2): Session::destruir() y redirect('login')
         Session::destruir();
         redirect('login');
     }

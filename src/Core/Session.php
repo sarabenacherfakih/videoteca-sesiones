@@ -23,6 +23,22 @@ final class Session
         // TODO (Etapa 4, Exp. B): session_set_cookie_params([...])
         //      con httponly, samesite y secure
 
+        // Configuración estricta de seguridad
+        ini_set('session.use_strict_mode', '1');
+        ini_set('session.use_only_cookies', '1');
+        ini_set('session.use_trans_sid', '0');
+
+        $https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path'     => '/',
+            'domain'   => '',
+            'secure'   => $https,
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
+
         session_start();
     }
 
